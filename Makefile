@@ -16,11 +16,11 @@ pkg:
 	rm -rf _build
 	mkdir -p _build
 	cargo build --release --features cli
-	cd target/release && cp rplc ../../_build/rplc-${VERSION}-x86_64
+	cd target/release && cp rplc /opt/rplc/_build/rplc-${VERSION}-x86_64
 	cross build --target aarch64-unknown-linux-gnu --release --features cli
 	cd target/aarch64-unknown-linux-gnu/release && \
 		aarch64-linux-gnu-strip rplc && \
-		cp rplc ../../../_build/rplc-${VERSION}-aarch64
+		cp rplc /opt/rplc/_build/rplc-${VERSION}-aarch64
 	cd _build && echo "" | gh release create v$(VERSION) -t "v$(VERSION)" \
 		rplc-${VERSION}-x86_64 \
 		rplc-${VERSION}-aarch64
