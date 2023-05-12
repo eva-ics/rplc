@@ -540,7 +540,7 @@ where
 
 /// Spawns a new thread/task
 ///
-/// If the PLC is shutting down, the task is ignored
+/// If the PLC is already started, all tasks except service ones are ignored
 ///
 /// # Panics
 ///
