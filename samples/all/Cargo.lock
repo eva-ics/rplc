@@ -1290,37 +1290,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b7e5500299e16ebb147ae15a00a942af264cf3688f47923b8fc2cd5858f23ad3"
 
 [[package]]
-name = "opcua"
-version = "0.12.0"
-source = "git+https://github.com/divi255/opcua#abcc502334312ed1abed28a7d24ae346dcabd275"
-dependencies = [
- "base64",
- "bitflags",
- "byteorder",
- "bytes",
- "chrono",
- "derivative",
- "foreign-types",
- "futures",
- "gethostname",
- "lazy_static",
- "libc",
- "log",
- "openssl",
- "openssl-sys",
- "parking_lot",
- "regex",
- "serde",
- "serde_derive",
- "serde_json",
- "serde_yaml 0.9.17",
- "tokio",
- "tokio-util",
- "url",
- "uuid 1.3.2",
-]
-
-[[package]]
 name = "openssl"
 version = "0.10.52"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1347,6 +1316,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "openssl-src"
+version = "111.25.3+1.1.1t"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "924757a6a226bf60da5f7dd0311a34d2b52283dd82ddeb103208ddc66362f80c"
+dependencies = [
+ "cc",
+]
+
+[[package]]
 name = "openssl-sys"
 version = "0.9.87"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1354,6 +1332,7 @@ checksum = "8e17f59264b2809d77ae94f0e1ebabc434773f370d6ca667bd223ea10e06cc7e"
 dependencies = [
  "cc",
  "libc",
+ "openssl-src",
  "pkg-config",
  "vcpkg",
 ]
@@ -1740,7 +1719,7 @@ dependencies = [
 
 [[package]]
 name = "rplc"
-version = "0.1.1"
+version = "0.1.2"
 dependencies = [
  "Inflector",
  "async-channel",
@@ -1757,10 +1736,10 @@ dependencies = [
  "log",
  "negative-impl",
  "once_cell",
- "opcua",
  "parking_lot",
  "rmodbus",
  "rplc_derive",
+ "rplc_opcua",
  "serde",
  "serde_yaml 0.9.17",
  "serial",
@@ -1776,10 +1755,44 @@ dependencies = [
 [[package]]
 name = "rplc_derive"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "12547a837b2a1502909db467529872b69d85c95b3b6a5b774c128d88b38c2556"
 dependencies = [
  "darling",
  "quote",
  "syn 1.0.107",
+]
+
+[[package]]
+name = "rplc_opcua"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "399ce72b2b177cd9ee9ae21fa061f91ca35a4b8ca9d6d97d97a6326f2832963c"
+dependencies = [
+ "base64",
+ "bitflags",
+ "byteorder",
+ "bytes",
+ "chrono",
+ "derivative",
+ "foreign-types",
+ "futures",
+ "gethostname",
+ "lazy_static",
+ "libc",
+ "log",
+ "openssl",
+ "openssl-sys",
+ "parking_lot",
+ "regex",
+ "serde",
+ "serde_derive",
+ "serde_json",
+ "serde_yaml 0.9.17",
+ "tokio",
+ "tokio-util",
+ "url",
+ "uuid 1.3.2",
 ]
 
 [[package]]
