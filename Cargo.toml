@@ -1,6 +1,6 @@
 [package]
 name = "rplc"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2021"
 authors = ["Serhij S. <div@altertech.com>"]
 license = "Apache-2.0"
@@ -10,10 +10,10 @@ readme = "README.md"
 keywords = ["plc", "automation", "modbus", "opcua"]
 
 [package.metadata.docs.rs]
-features = ["modbus", "opcua", "eva", "client"]
+features = ["eva", "client"]
 
 [package.metadata.playground]
-features = ["modbus", "opcua", "eva", "client"]
+features = ["eva", "client"]
 
 [lib]
 name = "rplc"
