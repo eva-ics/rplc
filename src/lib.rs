@@ -289,10 +289,6 @@ pub fn cpus() -> usize {
     }
 }
 
-// TODO managing prod docs
-
-// TODO publish the crate, release rplc cli
-
 // TODO custom action handlers, long action examples, kill and terminate support
 // TODO allows programs which are called via BUS/RT as lmacros
 

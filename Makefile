@@ -16,8 +16,8 @@ pkg:
 	rm -rf _build
 	mkdir -p _build
 	cargo build --release --features cli
+	cd target/release && cp rplc ../../_build/rplc-${VERSION}-x86_64
 	cross build --target aarch64-unknown-linux-gnu --release --features cli
-	cd target/x86_64-unknown-linux-gnu/release && cp rplc ../../../_build/rplc-${VERSION}-x86_64
 	cd target/aarch64-unknown-linux-gnu/release && \
 		aarch64-linux-gnu-strip rplc && \
 		cp rplc ../../../_build/rplc-${VERSION}-aarch64
