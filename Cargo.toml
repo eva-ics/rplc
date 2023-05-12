@@ -10,10 +10,10 @@ readme = "README.md"
 keywords = ["plc", "automation", "modbus", "opcua"]
 
 [package.metadata.docs.rs]
-features = ["modbus", "opcua", "eapi", "client"]
+features = ["modbus", "opcua", "eva", "client"]
 
 [package.metadata.playground]
-features = ["modbus", "opcua", "eapi", "client"]
+features = ["modbus", "opcua", "eva", "client"]
 
 [lib]
 name = "rplc"
