@@ -15,10 +15,10 @@ release: tag pkg
 pkg:
 	rm -rf _build
 	mkdir -p _build
-	cross build --target x86_64-unknown-linux-musl --release --features cli
-	cross build --target aarch64-unknown-linux-musl --release --features cli
-	cd target/x86_64-unknown-linux-musl/release && cp rplc ../../../_build/rplc-${VERSION}-x86_64
-	cd target/aarch64-unknown-linux-musl/release && \
+	cargo build --release --features cli
+	cross build --target aarch64-unknown-linux-gnu --release --features cli
+	cd target/x86_64-unknown-linux-gnu/release && cp rplc ../../../_build/rplc-${VERSION}-x86_64
+	cd target/aarch64-unknown-linux-gnu/release && \
 		aarch64-linux-gnu-strip rplc && \
 		cp rplc ../../../_build/rplc-${VERSION}-aarch64
 	cd _build && echo "" | gh release create v$(VERSION) -t "v$(VERSION)" \
