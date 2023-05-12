@@ -15,9 +15,9 @@ release: tag pkg
 pkg:
 	rm -rf _build
 	mkdir -p _build
-	cargo build --release --features cli
+	cargo build --release --features cli,openssl-vendored
 	cd target/release && cp rplc /opt/rplc/_build/rplc-${VERSION}-x86_64
-	cross build --target aarch64-unknown-linux-gnu --release --features cli
+	cross build --target aarch64-unknown-linux-gnu --release --features cli,openssl-vendored
 	cd target/aarch64-unknown-linux-gnu/release && \
 		aarch64-linux-gnu-strip rplc && \
 		cp rplc /opt/rplc/_build/rplc-${VERSION}-aarch64

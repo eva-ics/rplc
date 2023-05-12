@@ -1,6 +1,6 @@
 [package]
 name = "rplc"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2021"
 authors = ["Serhij S. <div@altertech.com>"]
 license = "Apache-2.0"
@@ -31,7 +31,7 @@ serde = { version = "1.0.160", features = ["derive"] }
 serde_yaml = "0.9.17"
 rplc_derive = "0.1.0"
 indexmap = { version = "1.9.2", features = ["serde"] }
-eva-common = { version = "0.2.6", features = ["payload", "bus-rpc", "events", "openssl-vendored"] }
+eva-common = { version = "0.2.6", features = ["payload", "bus-rpc", "events"] }
 log = "0.4.17"
 once_cell = "1.17.1"
 bmart-derive = "0.1.3"
@@ -65,6 +65,7 @@ client = ["tokio", "bmart"]
 eva = ["busrt", "tokio", "eva-sdk", "async-channel"]
 modbus = ["rmodbus", "serial"]
 opcua = ["rplc_opcua", "ttl_cache"]
+openssl-vendored = ["eva-common/openssl-vendored"]
 
 [profile.release]
 strip = true
