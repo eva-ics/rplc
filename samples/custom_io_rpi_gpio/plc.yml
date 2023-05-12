@@ -1,0 +1,7 @@
+version: 1
+context:
+  fields:
+    in1: BOOL
+    in2: BOOL
+    out1: BOOL
+    out2: BOOL

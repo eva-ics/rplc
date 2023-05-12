@@ -1,0 +1,20 @@
+[package]
+name = "all"
+version = "0.1.0"
+edition = "2021"
+description = "Test plc"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+rmp-serde = "1.1.1"
+rplc = { path = "../..", features = ["eva", "modbus", "opcua"] }
+snmp = "0.2.2"
+
+[build-dependencies]
+rplc = { path = "../..", features = ["eva", "modbus", "opcua"] }
+
+[profile.release]
+strip = true
+lto = true
+codegen-units = 1

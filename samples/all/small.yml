@@ -1,0 +1,48 @@
+version: 1
+core:
+  stop_timeout: 10
+server:
+  - kind: modbus
+    config:
+      proto: tcp
+      listen: 127.0.0.1:9503
+      unit: 0x01
+      timeout: 1
+      maxconn: 5
+  #- kind: modbus
+    #config:
+      #proto: rtu
+      #listen: /dev/modbus_srv:9600:8:N:1
+      #unit: 0x01
+      #timeout: 3600
+context:
+  serialize: true
+  modbus:
+    c: 1000
+    d: 1000
+    i: 1000
+    h: 1000
+  fields:
+    router_if1: BOOL
+    temperature: REAL
+    humidity: REAL
+    temps: REAL[4]
+    fan: BOOL
+    fan2: BOOL
+    fan3: BOOL
+    fan4: BOOL
+    fan_speed: UINT
+    fan4_speed: REAL
+    timers: Timers
+    data:
+        counter: ULINT
+        flags: UINT[12]
+        flags2: UDINT[3]
+        bool_flags: BOOL[12]
+        opc_temp: LREAL[2]
+        subfield:
+          a: ULINT
+          b: ULINT
+          temp_out: REAL
+eapi:
+  action_pool_size: 4

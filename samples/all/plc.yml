@@ -1,0 +1,162 @@
+version: 1
+core:
+  stop_timeout: 10
+server:
+  - kind: modbus
+    config:
+      proto: tcp
+      listen: 127.0.0.1:{{ modbus_server_port }}
+      unit: 0x01
+      timeout: 1
+      maxconn: 5
+  #- kind: modbus
+    #config:
+      #proto: rtu
+      #listen: /dev/modbus_srv:9600:8:N:1
+      #unit: 0x01
+      #timeout: 3600
+context:
+  serialize: true
+  modbus:
+    c: 1000
+    d: 1000
+    i: 1000
+    h: 1000
+  fields:
+    router_if1: BOOL
+    temperature: REAL
+    humidity: REAL
+    temps: REAL[4]
+    fan: BOOL
+    fan2: BOOL
+    fan3: BOOL
+    fan4: BOOL
+    fan_speed: UINT
+    fan4_speed: REAL
+    timers: Timers
+    timer2: Duration
+    data:
+        counter: ULINT
+        flags: UINT[12]
+        flags2: UDINT[3]
+        bool_flags: BOOL[12]
+        opc_temp: LREAL[2]
+        subfield:
+          a: ULINT
+          b: ULINT
+          temp_out: REAL
+eapi:
+  action_pool_size: 4
+io:
+  - id: scada1
+    kind: eapi
+    input:
+      - action_map:
+        - oid: unit:tests/fan3
+          status: fan3
+        - oid: unit:tests/fan4
+          status: fan4
+          value: fan4_speed
+    output:
+      - oid_map:
+        - oid: sensor:tests/temp_out
+          value: data.subfield.temp_out
+        - oid: sensor:tests/temp3
+          value: temps[3]
+        - oid: sensor:tests/data_flags
+          value: data.flags
+        sync: 500ms
+        cache: 5s
+      - oid_map:
+        - oid: unit:tests/fan
+          status: fan
+          value: fan_speed
+        - oid: unit:tests/fan2
+          status: fan2
+        - oid: unit:tests/fan3
+          status: fan3
+        - oid: unit:tests/fan4
+          status: fan4
+          value: fan4_speed
+        sync: 300ms
+        cache: 30s
+  - id: opc1
+    kind: opcua
+    config:
+      pki_dir: /tmp/plc1_pki
+      trust_server_certs: false
+      create_keys: true
+      timeout: 5.0
+      auth:
+        user: sample1
+        password: sample1pwd
+        #cert_file: own/cert.der
+        #key_file: private/private.pem
+      url: opc.tcp://localhost:4855
+    input:
+      - nodes:
+          - id: "ns=2;g=dcff8e02-4706-49ea-979c-fc1ec6cff8ef"
+            map: data.opc_temp
+        sync: 1s
+    output:
+      - nodes:
+          - id: "ns=2;s=fan1"
+            map: fan
+          - id: "ns=2;s=fan2"
+            map: fan2
+          - id: "ns=2;s=fan3"
+            map: fan3
+        sync: 1s
+        cache: 10s
+  - id: mb_local
+    kind: modbus
+    config:
+      proto: tcp
+      path: 127.0.0.1:5504
+      #proto: rtu
+      #path: /dev/modbus:9600:8:N:1
+      timeout: 3600
+    input:
+      - reg: h0-3
+        unit: 0x01
+        map:
+          - offset: 0
+            target: temperature
+        sync: 500ms
+      - reg: h10
+        unit: 0x01
+        number: 18
+        map:
+          - offset: =10
+            target: data.flags
+          - offset: 12
+            target: data.flags2
+        sync: 1s
+      - reg: c2
+        unit: 0x01
+        number: 12
+        map:
+          - target: data.bool_flags
+        sync: 500ms
+    output:
+      - reg: c0-2
+        unit: 0x01
+        map:
+          - offset: 0
+            source: fan
+          - offset: =1
+            source: fan2
+          - offset: =2
+            source: fan3
+        sync: 500ms
+      - reg: h200
+        unit: 0x01
+        number: 10
+        map:
+          #- offset: 0
+            #source: data.subfield.a
+          #- offset: 4
+            #source: data.subfield.b
+          - offset: =208
+            source: data.subfield.temp_out
+        sync: 500ms

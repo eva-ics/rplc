@@ -1,0 +1,23 @@
+version: 1
+context:
+  fields:
+    temperature: REAL
+    fan: BOOL
+io:
+  - id: modbus1
+    kind: modbus
+    config:
+      proto: tcp
+      path: 127.0.0.1:5504
+    input:
+      - reg: h0-1
+        unit: 0x01
+        map:
+          - target: temperature
+        sync: 500ms
+    output:
+      - reg: c0
+        unit: 0x01
+        map:
+          - source: fan
+        sync: 500ms
