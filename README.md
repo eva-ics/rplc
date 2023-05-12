@@ -10,7 +10,7 @@ classical PLC programming approach.
 rPLC supports Modbus and OPC-UA input/output protocols out-of-the-box and can
 be easily extended with custom I/O as well.
 
-rPLC is a part of <https://www.eva-ics.com> EVA ICS® open-source industrial
+rPLC is a part of [EVA ICS](https://www.eva-ics.com) open-source industrial
 automation eco-system.
 
 ## A quick example
