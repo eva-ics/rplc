@@ -2,6 +2,12 @@
 name = "rplc"
 version = "0.1.1"
 edition = "2021"
+authors = ["Serhij S. <div@altertech.com>"]
+license = "Apache-2.0"
+repository = "https://github.com/eva-ics/rplc"
+description = "PLC programming in Rust"
+readme = "README.md"
+keywords = ["plc", "automation", "modbus", "opcua"]
 
 [package.metadata.docs.rs]
 features = ["modbus", "opcua", "eapi", "client"]
