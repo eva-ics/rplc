@@ -109,7 +109,7 @@ pub fn uptime() -> Duration {
 /// Will panic if syslog is selected but can not be connected
 pub fn init(name: &str, description: &str, version: &str) {
     panic::set_hook(Box::new(|s| {
-        println!("PANIC: {}", s);
+        eprintln!("PANIC: {}", s);
         std::process::exit(1);
     }));
     HOSTNAME
