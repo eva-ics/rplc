@@ -300,8 +300,33 @@ fn generate_structs(
                 st.push_field(field);
             }
             ContextField::Map(m) => {
-                let sub_name = format!("{}{}", name, k.to_title_case());
-                let mut field = codegen::Field::new(k, &sub_name);
+                let (mut field, sub_name) = if k.ends_with(']') {
+                    let (number, field_name) = if let Some(pos) = k.rfind('[') {
+                        (
+                            k[pos + 1..k.len() - 1].parse::<usize>().map_err(|e| {
+                                eva_common::Error::invalid_params(format!(
+                                    "invalid struct name: {} ({})",
+                                    k, e
+                                ))
+                            })?,
+                            &k[..pos],
+                        )
+                    } else {
+                        return Err(eva_common::Error::invalid_params(format!(
+                            "invalid struct name: {}",
+                            k
+                        ))
+                        .into());
+                    };
+                    let sub_name = format!("{}{}", name, field_name.to_title_case());
+                    (
+                        codegen::Field::new(field_name, format!("[{}; {}]", sub_name, number)),
+                        sub_name,
+                    )
+                } else {
+                    let sub_name = format!("{}{}", name, k.to_title_case());
+                    (codegen::Field::new(k, &sub_name), sub_name)
+                };
                 field.vis("pub");
                 if serialize {
                     field.annotation.push("#[serde(default)]".to_owned());

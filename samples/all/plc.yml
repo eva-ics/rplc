@@ -35,6 +35,9 @@ context:
     fan4_speed: REAL
     timers: Timers
     timer2: Duration
+    connector[4]:
+      state: BOOL
+      voltage: REAL
     data:
         counter: ULINT
         flags: UINT[12]
