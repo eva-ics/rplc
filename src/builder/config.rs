@@ -325,21 +325,24 @@ fn generate_default(t: &str) -> String {
                 if let Some(val) = base_val(base_tp) {
                     write!(result, "[{};{}]", val, size).unwrap();
                 } else {
-                    write!(result, "[").unwrap();
-                    for _ in 0..size {
-                        write!(result, "<_>::default(),").unwrap();
-                    }
-                    write!(result, "]").unwrap();
+                    write!(result, "::std::array::from_fn(|_| <_>::default())").unwrap();
                 }
                 if boxed {
                     write!(result, ")").unwrap();
                 }
             } else {
-                let mut r = "[".to_owned();
+                let mut r = if boxed {
+                    "Box::new([".to_owned()
+                } else {
+                    "[".to_owned()
+                };
                 for _ in 0..size {
                     write!(r, "{},", result).unwrap();
                 }
                 write!(r, "]").unwrap();
+                if boxed {
+                    write!(r, ")").unwrap();
+                }
                 result = r;
             }
         }
