@@ -3,8 +3,17 @@ context:
   fields:
     temperature: REAL
     fan: BOOL
-    data:
-      var: REAL[1024]
+    data[100]:
+      var1: BYTE[100!]
+      var2: BYTE[100]
+      #var3: BYTE[100]
+      #var4: BYTE[100]
+      #var5: BYTE[100]
+      #var6: BYTE[100]
+      #var7: BYTE[100]
+      #var8: BYTE[100]
+      #var9: BYTE[100]
+      #var10: BYTE[100]
 io:
   - id: modbus1
     kind: modbus

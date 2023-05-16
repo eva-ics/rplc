@@ -273,14 +273,28 @@ fn parse_type(t: &str) -> String {
         let mut result = String::new();
         let base_tp = parse_iec_type(sp.next().unwrap());
         for d in sp {
-            let size_s = d[0..d.len() - 1].trim().replace('_', "");
+            let mut size_s = d[0..d.len() - 1].trim().replace('_', "");
+            let boxed = if size_s.ends_with("!") {
+                size_s = size_s[..size_s.len() - 1].to_owned();
+                true
+            } else {
+                false
+            };
             let size = size_s
                 .parse::<usize>()
                 .unwrap_or_else(|e| panic!("{e}: {size_s}"));
             if result.is_empty() {
-                write!(result, "[{}; {}]", base_tp, size).unwrap();
+                if boxed {
+                    write!(result, "Box<[{}; {}]>", base_tp, size).unwrap();
+                } else {
+                    write!(result, "[{}; {}]", base_tp, size).unwrap();
+                }
             } else {
-                result = format!("[{}; {}]", result, size);
+                if boxed {
+                    result = format!("Box<[{}; {}]>", result, size);
+                } else {
+                    result = format!("[{}; {}]", result, size);
+                }
             }
         }
         result
@@ -296,11 +310,20 @@ fn generate_default(t: &str) -> String {
         let mut result = String::new();
         let base_tp = parse_iec_type(sp.next().unwrap());
         for d in sp {
-            let size_s = d[0..d.len() - 1].trim().replace('_', "");
+            let mut size_s = d[0..d.len() - 1].trim().replace('_', "");
+            let boxed = if size_s.ends_with("!") {
+                size_s = size_s[..size_s.len() - 1].to_owned();
+                true
+            } else {
+                false
+            };
             let size = size_s
                 .parse::<usize>()
                 .unwrap_or_else(|e| panic!("{e}: {size_s}"));
             if result.is_empty() {
+                if boxed {
+                    write!(result, "Box::new(").unwrap();
+                }
                 if let Some(val) = base_val(base_tp) {
                     write!(result, "[{};{}]", val, size).unwrap();
                 } else {
@@ -309,6 +332,9 @@ fn generate_default(t: &str) -> String {
                         write!(result, "<_>::default(),").unwrap();
                     }
                     write!(result, "]").unwrap();
+                }
+                if boxed {
+                    write!(result, ")").unwrap();
                 }
             } else {
                 let mut r = "[".to_owned();
@@ -359,20 +385,21 @@ fn generate_structs(
             }
             ContextField::Map(m) => {
                 let (mut field, sub_name) = if k.ends_with(']') {
-                    let (number, field_name) = if let Some(pos) = k.rfind('[') {
-                        (
-                            k[pos + 1..k.len() - 1]
-                                .trim()
-                                .replace('_', "")
-                                .parse::<usize>()
-                                .map_err(|e| {
-                                    eva_common::Error::invalid_params(format!(
-                                        "invalid struct name: {} ({})",
-                                        k, e
-                                    ))
-                                })?,
-                            &k[..pos],
-                        )
+                    let (number, field_name, boxed) = if let Some(pos) = k.rfind('[') {
+                        let mut size_s = k[pos + 1..k.len() - 1].trim().replace('_', "");
+                        let boxed = if size_s.ends_with("!") {
+                            size_s = size_s[..size_s.len() - 1].to_owned();
+                            true
+                        } else {
+                            false
+                        };
+                        let field = size_s.parse::<usize>().map_err(|e| {
+                            eva_common::Error::invalid_params(format!(
+                                "invalid struct name: {} ({})",
+                                k, e
+                            ))
+                        })?;
+                        (field, &k[..pos], boxed)
                     } else {
                         return Err(eva_common::Error::invalid_params(format!(
                             "invalid struct name: {}",
@@ -381,10 +408,12 @@ fn generate_structs(
                         .into());
                     };
                     let sub_name = format!("{}{}", name, field_name.to_title_case());
-                    (
-                        codegen::Field::new(field_name, format!("[{}; {}]", sub_name, number)),
-                        sub_name,
-                    )
+                    let field_value = if boxed {
+                        format!("Box<[{}; {}]>", sub_name, number)
+                    } else {
+                        format!("[{}; {}]", sub_name, number)
+                    };
+                    (codegen::Field::new(field_name, field_value), sub_name)
                 } else {
                     let sub_name = format!("{}{}", name, k.to_title_case());
                     (codegen::Field::new(k, &sub_name), sub_name)
