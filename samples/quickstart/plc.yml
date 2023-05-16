@@ -3,6 +3,8 @@ context:
   fields:
     temperature: REAL
     fan: BOOL
+    data:
+      var: REAL[1024]
 io:
   - id: modbus1
     kind: modbus

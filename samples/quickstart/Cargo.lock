@@ -1297,7 +1297,7 @@ dependencies = [
 
 [[package]]
 name = "rplc"
-version = "0.1.0"
+version = "0.1.7"
 dependencies = [
  "Inflector",
  "bmart-derive",
@@ -1327,6 +1327,8 @@ dependencies = [
 [[package]]
 name = "rplc_derive"
 version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "12547a837b2a1502909db467529872b69d85c95b3b6a5b774c128d88b38c2556"
 dependencies = [
  "darling",
  "quote",

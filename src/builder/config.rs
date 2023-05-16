@@ -280,9 +280,13 @@ fn generate_structs(
     serialize: bool,
 ) -> Result<(), Box<dyn Error>> {
     let mut st: codegen::Struct = codegen::Struct::new(name);
+    let mut st_impl: codegen::Impl = codegen::Impl::new(name);
+    st_impl.impl_trait("Default");
+    let default = st_impl.new_fn("default");
+    default.ret("Self");
+    default.line("Self {");
     st.allow("dead_code")
         .allow("clippy::module_name_repetitions")
-        .derive("Default")
         .repr("C")
         .vis("pub");
     if serialize {
@@ -297,6 +301,7 @@ fn generate_structs(
                 if serialize {
                     field.annotation.push("#[serde(default)]".to_owned());
                 }
+                //default.line(format!("{}: {},", field.name, parse_type_default(t)));
                 st.push_field(field);
             }
             ContextField::Map(m) => {
@@ -328,6 +333,7 @@ fn generate_structs(
                     (codegen::Field::new(k, &sub_name), sub_name)
                 };
                 field.vis("pub");
+                default.line(format!("{}: <_>::default(),", field.name));
                 if serialize {
                     field.annotation.push("#[serde(default)]".to_owned());
                 }
@@ -358,7 +364,9 @@ fn generate_structs(
         }
         st.push_field(field);
     }
+    default.line("}");
     scope.push_struct(st);
+    scope.push_impl(st_impl);
     #[cfg(feature = "modbus")]
     if let Some(c) = modbus_config {
         let im = scope.new_impl(&format!(
