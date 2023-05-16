@@ -13,10 +13,6 @@ fn tempmon() {
 }
 
 fn main() {
-    {
-        let mut ctx = plc_context_mut!();
-        ctx.data[0].var1[0] = 5;
-    }
     init_plc!();
     tempmon_spawn();
     run_plc!();
