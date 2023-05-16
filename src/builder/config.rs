@@ -274,7 +274,7 @@ fn parse_type(t: &str) -> String {
         let base_tp = parse_iec_type(sp.next().unwrap());
         for d in sp {
             let mut size_s = d[0..d.len() - 1].trim().replace('_', "");
-            let boxed = if size_s.ends_with("!") {
+            let boxed = if size_s.ends_with('!') {
                 size_s = size_s[..size_s.len() - 1].to_owned();
                 true
             } else {
@@ -289,12 +289,10 @@ fn parse_type(t: &str) -> String {
                 } else {
                     write!(result, "[{}; {}]", base_tp, size).unwrap();
                 }
+            } else if boxed {
+                result = format!("Box<[{}; {}]>", result, size);
             } else {
-                if boxed {
-                    result = format!("Box<[{}; {}]>", result, size);
-                } else {
-                    result = format!("[{}; {}]", result, size);
-                }
+                result = format!("[{}; {}]", result, size);
             }
         }
         result
@@ -311,7 +309,7 @@ fn generate_default(t: &str) -> String {
         let base_tp = parse_iec_type(sp.next().unwrap());
         for d in sp {
             let mut size_s = d[0..d.len() - 1].trim().replace('_', "");
-            let boxed = if size_s.ends_with("!") {
+            let boxed = if size_s.ends_with('!') {
                 size_s = size_s[..size_s.len() - 1].to_owned();
                 true
             } else {
@@ -351,6 +349,7 @@ fn generate_default(t: &str) -> String {
     }
 }
 
+#[allow(clippy::too_many_lines)]
 fn generate_structs(
     name: &str,
     fields: &IndexMap<String, ContextField>,
@@ -387,7 +386,7 @@ fn generate_structs(
                 let (mut field, sub_name) = if k.ends_with(']') {
                     let (number, field_name, boxed) = if let Some(pos) = k.rfind('[') {
                         let mut size_s = k[pos + 1..k.len() - 1].trim().replace('_', "");
-                        let boxed = if size_s.ends_with("!") {
+                        let boxed = if size_s.ends_with('!') {
                             size_s = size_s[..size_s.len() - 1].to_owned();
                             true
                         } else {
@@ -449,6 +448,7 @@ fn generate_structs(
             field.annotation.push("#[serde(default)]".to_owned());
         }
         st.push_field(field);
+        default.line("modbus: <_>::default(),");
     }
     default.line("}");
     scope.push_struct(st);
