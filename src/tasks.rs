@@ -594,7 +594,11 @@ where
                     .unwrap_or_else(|e| panic!("UNABLE TO SET THREAD {} AFFINITY: {}", name, e))
             })
             .ok();
-        let handle = thread::Builder::new()
+        let mut builder = thread::Builder::new();
+        if let Some(ss) = crate::STACK_SIZE.get() {
+            builder = builder.stack_size(*ss);
+        }
+        let handle = builder
             .name(name)
             .spawn(move || {
                 if let Some(affinity) = affinity {

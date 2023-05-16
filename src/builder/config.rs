@@ -34,12 +34,15 @@ fn default_stop_timeout() -> f64 {
 pub(crate) struct CoreConfig {
     #[serde(default = "default_stop_timeout")]
     pub(crate) stop_timeout: f64,
+    #[serde(default)]
+    pub(crate) stack_size: Option<usize>,
 }
 
 impl Default for CoreConfig {
     fn default() -> Self {
         Self {
             stop_timeout: default_stop_timeout(),
+            stack_size: None,
         }
     }
 }
@@ -252,6 +255,17 @@ fn parse_iec_type(tp: &str) -> &str {
     }
 }
 
+fn base_val(tp: &str) -> Option<&str> {
+    match tp {
+        "bool" => Some("false"),
+        "u8" | "u16" | "u32" | "u64" | "usize" | "i8" | "i16" | "i32" | "i64" | "isize" => {
+            Some("0")
+        }
+        "f32" | "f64" => Some("0.0"),
+        _ => None,
+    }
+}
+
 fn parse_type(t: &str) -> String {
     let tp = t.trim();
     if tp.ends_with(']') && !tp.starts_with('[') {
@@ -259,7 +273,10 @@ fn parse_type(t: &str) -> String {
         let mut result = String::new();
         let base_tp = parse_iec_type(sp.next().unwrap());
         for d in sp {
-            let size = d[0..d.len() - 1].trim().parse::<usize>().unwrap();
+            let size_s = d[0..d.len() - 1].trim().replace('_', "");
+            let size = size_s
+                .parse::<usize>()
+                .unwrap_or_else(|e| panic!("{e}: {size_s}"));
             if result.is_empty() {
                 write!(result, "[{}; {}]", base_tp, size).unwrap();
             } else {
@@ -269,6 +286,42 @@ fn parse_type(t: &str) -> String {
         result
     } else {
         parse_iec_type(tp).to_owned()
+    }
+}
+
+fn generate_default(t: &str) -> String {
+    let tp = t.trim();
+    if tp.ends_with(']') && !tp.starts_with('[') {
+        let mut sp = tp.split('[');
+        let mut result = String::new();
+        let base_tp = parse_iec_type(sp.next().unwrap());
+        for d in sp {
+            let size_s = d[0..d.len() - 1].trim().replace('_', "");
+            let size = size_s
+                .parse::<usize>()
+                .unwrap_or_else(|e| panic!("{e}: {size_s}"));
+            if result.is_empty() {
+                if let Some(val) = base_val(base_tp) {
+                    write!(result, "[{};{}]", val, size).unwrap();
+                } else {
+                    write!(result, "[").unwrap();
+                    for _ in 0..size {
+                        write!(result, "<_>::default(),").unwrap();
+                    }
+                    write!(result, "]").unwrap();
+                }
+            } else {
+                let mut r = "[".to_owned();
+                for _ in 0..size {
+                    write!(r, "{},", result).unwrap();
+                }
+                write!(r, "]").unwrap();
+                result = r;
+            }
+        }
+        result
+    } else {
+        "<_>::default()".to_owned()
     }
 }
 
@@ -301,19 +354,23 @@ fn generate_structs(
                 if serialize {
                     field.annotation.push("#[serde(default)]".to_owned());
                 }
-                //default.line(format!("{}: {},", field.name, parse_type_default(t)));
+                default.line(format!("{}: {},", field.name, generate_default(t)));
                 st.push_field(field);
             }
             ContextField::Map(m) => {
                 let (mut field, sub_name) = if k.ends_with(']') {
                     let (number, field_name) = if let Some(pos) = k.rfind('[') {
                         (
-                            k[pos + 1..k.len() - 1].parse::<usize>().map_err(|e| {
-                                eva_common::Error::invalid_params(format!(
-                                    "invalid struct name: {} ({})",
-                                    k, e
-                                ))
-                            })?,
+                            k[pos + 1..k.len() - 1]
+                                .trim()
+                                .replace('_', "")
+                                .parse::<usize>()
+                                .map_err(|e| {
+                                    eva_common::Error::invalid_params(format!(
+                                        "invalid struct name: {} ({})",
+                                        k, e
+                                    ))
+                                })?,
                             &k[..pos],
                         )
                     } else {
@@ -333,10 +390,10 @@ fn generate_structs(
                     (codegen::Field::new(k, &sub_name), sub_name)
                 };
                 field.vis("pub");
-                default.line(format!("{}: <_>::default(),", field.name));
                 if serialize {
                     field.annotation.push("#[serde(default)]".to_owned());
                 }
+                default.line(format!("{}: {},", field.name, generate_default(k)));
                 st.push_field(field);
                 generate_structs(
                     &sub_name,

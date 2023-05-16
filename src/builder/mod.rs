@@ -3,7 +3,7 @@ use std::env;
 use std::error::Error;
 use std::fmt;
 use std::fs;
-use std::io::{Read, Write};
+use std::io::Write;
 use std::path::Path;
 use std::process::{Command, Stdio};
 
@@ -55,6 +55,14 @@ fn prepare(config: &Config) -> Result<(), Box<dyn Error>> {
             env::var(format!("CARGO_PKG_{c}"))?
         ));
     }
+    plc_mod.raw(format!(
+        "pub const STACK_SIZE: Option<usize> = {};",
+        if let Some(ss) = config.core.stack_size {
+            format!("Some({})", ss * 1000)
+        } else {
+            "None".to_owned()
+        }
+    ));
     #[allow(clippy::cast_possible_truncation)]
     #[allow(clippy::cast_sign_loss)]
     plc_mod.raw(format!(
@@ -72,34 +80,34 @@ fn prepare(config: &Config) -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-fn format_code(code: &mut String) -> Result<String, Box<dyn Error>> {
+fn format_code(code: String) -> Result<String, Box<dyn Error>> {
     let mut child = Command::new("rustfmt")
         .arg("--edition=2021")
         .stdin(Stdio::piped())
         .stdout(Stdio::piped())
         .spawn()?;
-    {
-        let mut stdin = child
-            .stdin
-            .take()
-            .ok_or_else(|| eva_common::Error::io("unable to take stdin"))?;
-        stdin.write_all(code.as_bytes())?;
-    }
-    let status = child.wait()?;
-    if !status.success() {
-        return Err(
-            eva_common::Error::failed(format!("process exit code: {:?}", status.code())).into(),
-        );
-    }
-    let mut stdout = child
-        .stdout
+    let mut stdin = child
+        .stdin
         .take()
-        .ok_or_else(|| eva_common::Error::io("unable to take stdout"))?;
-    let mut formatted_code = String::new();
-    stdout
-        .read_to_string(&mut formatted_code)
-        .expect("failed to read from stdout");
-    Ok(formatted_code)
+        .ok_or_else(|| eva_common::Error::io("unable to take stdin"))?;
+    std::thread::spawn(move || {
+        stdin.write_all(code.as_bytes()).unwrap();
+        stdin.flush().unwrap();
+    });
+    let output = child.wait_with_output()?;
+    if !output.status.success() {
+        return Err(eva_common::Error::failed(format!(
+            "process exit code: {:?}",
+            output.status.code()
+        ))
+        .into());
+    }
+    //let mut formatted_code = String::new();
+    //for line in stdout {
+    //writeln!(formatted_code, "{}", line.unwrap()).unwrap();
+    //}
+    let formatted_code = std::str::from_utf8(&output.stdout)?;
+    Ok(formatted_code.to_owned())
 }
 
 fn write<T, D>(target: T, data: D) -> Result<(), Box<dyn Error>>
@@ -108,7 +116,7 @@ where
     D: fmt::Display,
 {
     let mut code = data.to_string();
-    match format_code(&mut code) {
+    match format_code(code.clone()) {
         Ok(c) => code = c,
         Err(e) => println!("cargo:warning=unable to format code with rustfmt: {}", e),
     }

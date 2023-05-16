@@ -52,6 +52,7 @@ pub static NAME: OnceCell<String> = OnceCell::new();
 pub static DESCRIPTION: OnceCell<String> = OnceCell::new();
 pub static VERSION: OnceCell<String> = OnceCell::new();
 pub static CPUS: OnceCell<usize> = OnceCell::new();
+pub static STACK_SIZE: OnceCell<usize> = OnceCell::new();
 
 static HOSTNAME: OnceCell<String> = OnceCell::new();
 static STARTUP_TIME: OnceCell<Instant> = OnceCell::new();
@@ -107,7 +108,7 @@ pub fn uptime() -> Duration {
 /// # Panics
 ///
 /// Will panic if syslog is selected but can not be connected
-pub fn init(name: &str, description: &str, version: &str) {
+pub fn init(name: &str, description: &str, version: &str, stack_size: Option<usize>) {
     panic::set_hook(Box::new(|s| {
         eprintln!("PANIC: {}", s);
         std::process::exit(1);
@@ -119,6 +120,9 @@ pub fn init(name: &str, description: &str, version: &str) {
     NAME.set(name.to_owned()).unwrap();
     DESCRIPTION.set(description.to_owned()).unwrap();
     VERSION.set(version.to_owned()).unwrap();
+    if let Some(ss) = stack_size {
+        STACK_SIZE.set(ss).unwrap();
+    }
     let verbose: bool = env::var("VERBOSE").ok().map_or(false, |v| v == "1");
     let syslog: bool = env::var("SYSLOG").ok().map_or(false, |v| v == "1");
     if syslog {
@@ -159,6 +163,7 @@ macro_rules! init_plc {
             crate::plc::NAME,
             crate::plc::DESCRIPTION,
             crate::plc::VERSION,
+            crate::plc::STACK_SIZE,
         );
     };
 }
