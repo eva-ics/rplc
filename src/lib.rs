@@ -1,3 +1,4 @@
+#![ doc = include_str!( concat!( env!( "CARGO_MANIFEST_DIR" ), "/", "README.md" ) ) ]
 use log::{debug, info};
 use once_cell::sync::{Lazy, OnceCell};
 use parking_lot::RwLock;
