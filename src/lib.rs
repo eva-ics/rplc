@@ -289,6 +289,7 @@ pub fn cpus() -> usize {
     }
 }
 
+// TODO manually impl default traits for context structs
 // TODO custom action handlers, long action examples, kill and terminate support
 // TODO allows programs which are called via BUS/RT as lmacros
 
