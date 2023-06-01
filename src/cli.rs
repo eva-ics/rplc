@@ -229,6 +229,7 @@ async fn handle_start(name: &str) -> EResult<()> {
 
 #[tokio::main(flavor = "current_thread")]
 async fn main() -> EResult<()> {
+    eva_common::self_test();
     let args = Args::parse();
     let var_dir = rplc::var_dir();
     if let Some(color) = args.color {

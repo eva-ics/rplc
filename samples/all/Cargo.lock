@@ -635,9 +635,9 @@ dependencies = [
 
 [[package]]
 name = "eva-common"
-version = "0.2.6"
+version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7a79088e1aaedc8e85d03c038c1a2da6c44c00678177372e7bf2418490016af4"
+checksum = "446f743e59e149dd1276a310ad7bb548ef48c0c7b2f8acc3292dc2a6e0267a6f"
 dependencies = [
  "async-channel",
  "async-recursion",
@@ -1755,9 +1755,9 @@ dependencies = [
 
 [[package]]
 name = "rplc_opcua"
-version = "0.12.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "399ce72b2b177cd9ee9ae21fa061f91ca35a4b8ca9d6d97d97a6326f2832963c"
+checksum = "4cfe4ef1cde34cefd23735ac7fedaa09851c408cb4ede769770e682659e9bff4"
 dependencies = [
  "base64",
  "bitflags",

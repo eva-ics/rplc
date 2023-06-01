@@ -110,6 +110,7 @@ pub fn uptime() -> Duration {
 ///
 /// Will panic if syslog is selected but can not be connected
 pub fn init(name: &str, description: &str, version: &str, stack_size: Option<usize>) {
+    eva_common::self_test();
     panic::set_hook(Box::new(|s| {
         eprintln!("PANIC: {}", s);
         std::process::exit(1);
