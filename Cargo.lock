@@ -1848,7 +1848,7 @@ dependencies = [
 
 [[package]]
 name = "rplc"
-version = "0.1.10"
+version = "0.1.11"
 dependencies = [
  "Inflector",
  "async-channel",
@@ -1898,9 +1898,9 @@ dependencies = [
 
 [[package]]
 name = "rplc_opcua"
-version = "0.12.0"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "399ce72b2b177cd9ee9ae21fa061f91ca35a4b8ca9d6d97d97a6326f2832963c"
+checksum = "4cfe4ef1cde34cefd23735ac7fedaa09851c408cb4ede769770e682659e9bff4"
 dependencies = [
  "base64",
  "bitflags",
