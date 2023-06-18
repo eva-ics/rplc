@@ -3,8 +3,6 @@ use eva_common::OID;
 use serde::Deserialize;
 use std::error::Error;
 
-pub mod util;
-
 fn default_cache() -> u64 {
     0
 }
@@ -32,8 +30,7 @@ struct InputConfig {
 #[serde(deny_unknown_fields)]
 struct OidMap {
     oid: OID,
-    status: Option<String>,
-    value: Option<String>,
+    value: String,
 }
 
 fn generate_output(id: &str, i: usize, scope: &mut codegen::Scope, output_config: OutputConfig) {
@@ -73,30 +70,14 @@ fn generate_output(id: &str, i: usize, scope: &mut codegen::Scope, output_config
     let mut out_block = codegen::Block::new("");
     out_block.line("let ctx = CONTEXT.read();");
     for (entry_id, entry) in output_config.oid_map.into_iter().enumerate() {
-        if entry.status.is_none() && entry.value.is_none() {}
-        assert!(
-            !(entry.status.is_none() && entry.value.is_none()),
-            "EVA ICS output entry {} for {} has no status/value fields",
-            id,
-            entry.oid
-        );
         out_block.line(format!("// {}", entry.oid));
-        if let Some(status) = entry.status {
-            out_block.line(format!("let status = i16::try_from(ctx.{})?;", status));
-        } else {
-            out_block.line("let status = 1;");
-        }
-        if let Some(value) = entry.value {
-            out_block.line(format!(
-                "let value = ValueOptionOwned::Value(to_value(ctx.{})?);",
-                value
-            ));
-        } else {
-            out_block.line("let value = ValueOptionOwned::No;");
-        }
+        out_block.line(format!(
+            "let value = ValueOptionOwned::Value(to_value(ctx.{})?);",
+            entry.value
+        ));
         out_block.line(format!("result.insert(&oids[{}],", entry_id));
         out_block.line("RawStateEventPreparedOwned::from_rse_owned(");
-        out_block.line("RawStateEventOwned { status, value, force: false, },");
+        out_block.line("RawStateEventOwned { status: 1, value, force: false, },");
         out_block.line("None));");
     }
     worker_fn.push_block(out_block);
@@ -111,12 +92,6 @@ fn generate_output(id: &str, i: usize, scope: &mut codegen::Scope, output_config
 
 fn generate_input(id: &str, i: usize, scope: &mut codegen::Scope, input_config: InputConfig) {
     for (entry_id, entry) in input_config.action_map.into_iter().enumerate() {
-        assert!(
-            !(entry.status.is_none() && entry.value.is_none()),
-            "EVA ICS input entry {} for {} has no status/value fields",
-            id,
-            entry.oid
-        );
         let mut handler_fn = codegen::Function::new(format!(
             "handle_eapi_action_{}_{}_{}",
             id,
@@ -125,27 +100,11 @@ fn generate_input(id: &str, i: usize, scope: &mut codegen::Scope, input_config: 
         ));
         handler_fn.arg("action", "&mut ::rplc::export::eva_sdk::controller::Action");
         handler_fn.ret("::rplc::export::eva_common::EResult<()>");
-        handler_fn.line("use ::rplc::io::eapi::util::ItemStatusX;");
         handler_fn.line("let params = action.take_unit_params()?;");
-        if entry.status.is_some() {
-            handler_fn.line("let status = ItemStatusX(params.status).try_into()?;");
-        }
-        if entry.value.is_some() {
-            let mut block =
-                codegen::Block::new("let value = if let ::rplc::export::eva_common::value::ValueOptionOwned::Value(v) = params.value");
-            block.line("Some(v.try_into()?)");
-            block.after("else { None };");
-            handler_fn.push_block(block);
-        }
-        handler_fn.line("let mut ctx = CONTEXT.write();");
-        if let Some(status) = entry.status {
-            handler_fn.line(format!("ctx.{} = status;", status));
-        }
-        if let Some(value) = entry.value {
-            let mut block = codegen::Block::new("if let Some(v) = value");
-            block.line(format!("ctx.{} = v;", value));
-            handler_fn.push_block(block);
-        }
+        handler_fn.line(format!(
+            "CONTEXT.write().{} = params.value.try_into()?;",
+            entry.value
+        ));
         handler_fn.line("Ok(())");
         scope.push_fn(handler_fn);
     }

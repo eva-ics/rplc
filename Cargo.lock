@@ -739,9 +739,9 @@ dependencies = [
 
 [[package]]
 name = "eva-common"
-version = "0.2.14"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "446f743e59e149dd1276a310ad7bb548ef48c0c7b2f8acc3292dc2a6e0267a6f"
+checksum = "b16e91b01274833ff90e46935276b29f32fcff5d61294688e17d315e7efc0aad"
 dependencies = [
  "async-channel",
  "async-recursion",
@@ -767,9 +767,9 @@ dependencies = [
 
 [[package]]
 name = "eva-sdk"
-version = "0.2.5"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "788658f3dcfde9f5f8eb5474a6a99055941d075f05b654d30301c8bd8bfe70de"
+checksum = "2b8db4a2e0579eb0649c0034e14a22a77950f8850b478e3dd2e058fe75b6f2bb"
 dependencies = [
  "async-channel",
  "bmart",
@@ -1848,7 +1848,7 @@ dependencies = [
 
 [[package]]
 name = "rplc"
-version = "0.1.11"
+version = "0.2.0"
 dependencies = [
  "Inflector",
  "async-channel",

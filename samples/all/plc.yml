@@ -56,9 +56,10 @@ io:
     input:
       - action_map:
         - oid: unit:tests/fan3
-          status: fan3
+          value: fan3
         - oid: unit:tests/fan4
-          status: fan4
+          value: fan4
+        - oid: unit:tests/fan4_speed
           value: fan4_speed
     output:
       - oid_map:
@@ -72,14 +73,16 @@ io:
         cache: 5s
       - oid_map:
         - oid: unit:tests/fan
-          status: fan
+          value: fan
+        - oid: unit:tests/fan_speed
           value: fan_speed
         - oid: unit:tests/fan2
-          status: fan2
+          value: fan2
         - oid: unit:tests/fan3
-          status: fan3
+          value: fan3
         - oid: unit:tests/fan4
-          status: fan4
+          value: fan4
+        - oid: unit:tests/fan4_speed
           value: fan4_speed
         sync: 300ms
         cache: 30s
