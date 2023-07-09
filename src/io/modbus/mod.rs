@@ -198,7 +198,7 @@ fn push_input_worker(
             ));
             let mut cp_block_match_slice_at =
                 codegen::Block::new(&format!("match regs.slice_at({})", i.offset.offset()));
-            cp_block_match_slice_at.line(format!("Ok(slice) => "));
+            cp_block_match_slice_at.line("Ok(slice) => ");
             cp_block_match_slice_at.push_block(cp_block_try_into);
             cp_block_match_slice_at.line(format!(
                 "Err(e) => ::rplc::export::log::error!(\"modbus slice err ctx.{}: {{}}\", e)",

@@ -61,7 +61,7 @@ tera = "1.18.1"
 
 [features]
 cli = ["clap", "prettytable-rs", "colored", "client", "eva"]
-client = ["tokio", "bmart"]
+client = ["tokio", "bmart", "eva"]
 eva = ["busrt", "tokio", "eva-sdk", "async-channel"]
 modbus = ["rmodbus", "serial"]
 opcua = ["rplc_opcua", "ttl_cache"]
