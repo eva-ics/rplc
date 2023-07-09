@@ -455,6 +455,7 @@ fn generate_structs(
     }
     default.line("}");
     scope.push_struct(st);
+    scope.raw("#[allow(clippy::derivable_impls)]");
     scope.push_impl(st_impl);
     #[cfg(feature = "modbus")]
     if let Some(c) = modbus_config {
