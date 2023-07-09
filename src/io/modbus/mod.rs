@@ -3,7 +3,7 @@ use eva_common::value::Value;
 use serde::Deserialize;
 use std::error::Error;
 use std::net::SocketAddr;
-pub use types::{Coils, Registers};
+pub use types::{Coils, Registers, SwapModbusEndianess};
 
 mod regs;
 mod types;

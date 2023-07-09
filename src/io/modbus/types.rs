@@ -1,6 +1,24 @@
 use eva_common::{EResult, Error, ErrorKind};
 use std::ops::{Deref, DerefMut};
 
+pub trait SwapModbusEndianess {
+    fn swap_modbus_endianess(&self) -> Self;
+}
+
+impl SwapModbusEndianess for f32 {
+    fn swap_modbus_endianess(&self) -> Self {
+        let b = self.to_be_bytes();
+        Self::from_be_bytes([b[2], b[3], b[0], b[1]])
+    }
+}
+
+impl SwapModbusEndianess for f64 {
+    fn swap_modbus_endianess(&self) -> Self {
+        let b = self.to_be_bytes();
+        Self::from_be_bytes([b[6], b[7], b[4], b[5], b[2], b[3], b[0], b[1]])
+    }
+}
+
 macro_rules! invalid_data {
     () => {
         Error::new0(ErrorKind::InvalidData)
