@@ -158,9 +158,9 @@ dependencies = [
 
 [[package]]
 name = "bmart"
-version = "0.2.4"
+version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "317e94dcb14134dc2fbbbe9f16a2f0f65284f22efa976deafaa14dd3d8fbbd37"
+checksum = "ddad030cdedba7c8fa6bb7b135745a110cb6b1fc5d0c46ed04238a592d6b7b39"
 dependencies = [
  "bmart-derive",
  "colored",
@@ -635,9 +635,9 @@ dependencies = [
 
 [[package]]
 name = "eva-common"
-version = "0.2.14"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "446f743e59e149dd1276a310ad7bb548ef48c0c7b2f8acc3292dc2a6e0267a6f"
+checksum = "436218e07b25e9a43898492bf3919d9eb9be5b248110d781d3a2706a128be5fb"
 dependencies = [
  "async-channel",
  "async-recursion",
@@ -663,9 +663,9 @@ dependencies = [
 
 [[package]]
 name = "eva-sdk"
-version = "0.2.5"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "788658f3dcfde9f5f8eb5474a6a99055941d075f05b654d30301c8bd8bfe70de"
+checksum = "2b8db4a2e0579eb0649c0034e14a22a77950f8850b478e3dd2e058fe75b6f2bb"
 dependencies = [
  "async-channel",
  "bmart",
@@ -1094,9 +1094,9 @@ checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
 name = "libc"
-version = "0.2.142"
+version = "0.2.147"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a987beff54b60ffa6d51982e1aa1146bc42f19bd26be28b0586f252fccf5317"
+checksum = "b4668fb0ea861c1df094127ac5f1da3409a82116a4ba74fca2e58ef927159bb3"
 
 [[package]]
 name = "libm"
@@ -1238,9 +1238,9 @@ dependencies = [
 
 [[package]]
 name = "ntapi"
-version = "0.3.7"
+version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c28774a7fd2fbb4f0babd8237ce554b73af68021b5f695a3cebd6c59bac0980f"
+checksum = "e8a3895c6391c39d7fe7ebc444a87eb2991b2a0bc718fdabd071eec617fc68e4"
 dependencies = [
  "winapi",
 ]
@@ -1709,7 +1709,7 @@ dependencies = [
 
 [[package]]
 name = "rplc"
-version = "0.1.10"
+version = "0.2.4"
 dependencies = [
  "Inflector",
  "async-channel",
@@ -2107,9 +2107,9 @@ dependencies = [
 
 [[package]]
 name = "sysinfo"
-version = "0.20.5"
+version = "0.29.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e223c65cd36b485a34c2ce6e38efa40777d31c4166d9076030c74cdcf971679f"
+checksum = "165d6d8539689e3d3bc8b98ac59541e1f21c7de7c85d60dc80e43ae0ed2113db"
 dependencies = [
  "cfg-if",
  "core-foundation-sys",
