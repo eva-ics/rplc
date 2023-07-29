@@ -677,28 +677,28 @@ impl FromStr for Affinity {
 }
 
 #[inline]
-pub fn spawn_input_loop<F>(name: &str, interval: Duration, f: F)
+pub fn spawn_input_loop<F>(name: &str, interval: Duration, shift: Duration, f: F)
 where
     F: FnMut() + Send + 'static,
 {
-    spawn_loop(name, interval, Kind::Input, f);
+    spawn_loop(name, interval, shift, Kind::Input, f);
 }
 
 #[inline]
-pub fn spawn_output_loop<F>(name: &str, interval: Duration, f: F)
+pub fn spawn_output_loop<F>(name: &str, interval: Duration, shift: Duration, f: F)
 where
     F: FnMut() + Send + 'static,
 {
-    spawn_loop(name, interval, Kind::Output, f);
+    spawn_loop(name, interval, shift, Kind::Output, f);
 }
 
-pub fn spawn_loop<F>(name: &str, interval: Duration, kind: Kind, mut f: F)
+pub fn spawn_loop<F>(name: &str, interval: Duration, shift: Duration, kind: Kind, mut f: F)
 where
     F: FnMut() + Send + 'static,
 {
     if kind == Kind::Output {
         spawn(name, Kind::Output, move || {
-            let mut int = Loop::prepare_reported(interval);
+            let mut int = Loop::prepare_reported(interval, shift);
             loop {
                 let last_sync = output_last_sync();
                 f();
@@ -712,7 +712,7 @@ where
         });
     } else {
         spawn(name, kind, move || {
-            let mut int = Loop::prepare_reported(interval);
+            let mut int = Loop::prepare_reported(interval, shift);
             loop {
                 log_running();
                 f();
@@ -775,12 +775,12 @@ where
 /// - the thread name is more than 14 characters
 ///
 /// - the OS is unable to spawn the thread
-pub fn spawn_program_loop<F>(name: &str, prog: F, interval: Duration)
+pub fn spawn_program_loop<F>(name: &str, prog: F, interval: Duration, shift: Duration)
 where
     F: Fn() + Send + 'static,
 {
     spawn(name, Kind::Program, move || {
-        let mut int = Loop::prepare_reported(interval);
+        let mut int = Loop::prepare_reported(interval, shift);
         loop {
             log_running();
             {

@@ -25,7 +25,10 @@ pub fn plc_program(args: TokenStream, input: TokenStream) -> TokenStream {
     };
     let item: syn::Item = syn::parse(input).expect("Invalid input");
     let int = parse_interval(&args.lp).unwrap();
-    let shift: Option<u64> = args.shift.map(|v| parse_interval(&v).unwrap());
+    let shift: u64 = args
+        .shift
+        .map(|v| parse_interval(&v).unwrap())
+        .unwrap_or_default();
     if let syn::Item::Fn(fn_item) = item {
         let block = fn_item.block;
         let name = fn_item.sig.ident;

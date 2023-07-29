@@ -1945,7 +1945,7 @@ dependencies = [
 
 [[package]]
 name = "rplc"
-version = "0.2.4"
+version = "0.3.0"
 dependencies = [
  "Inflector",
  "async-channel",
@@ -1984,9 +1984,9 @@ dependencies = [
 
 [[package]]
 name = "rplc_derive"
-version = "0.1.0"
+version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "12547a837b2a1502909db467529872b69d85c95b3b6a5b774c128d88b38c2556"
+checksum = "6972e6816b97bce284ec22994cf279bc26e2056568c835e2897d86e311502609"
 dependencies = [
  "darling",
  "quote",

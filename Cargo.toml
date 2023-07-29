@@ -1,6 +1,6 @@
 [package]
 name = "rplc"
-version = "0.2.4"
+version = "0.3.0"
 edition = "2021"
 authors = ["Serhij S. <div@altertech.com>"]
 license = "Apache-2.0"
@@ -29,7 +29,7 @@ Inflector = "0.11.4"
 parking_lot = "0.12.1"
 serde = { version = "1.0.160", features = ["derive"] }
 serde_yaml = "0.9.17"
-rplc_derive = "0.1.0"
+rplc_derive = "0.3.0"
 indexmap = { version = "1.9.2", features = ["serde"] }
 eva-common = { version = "0.3.0", features = ["payload", "bus-rpc", "events"] }
 log = "0.4.17"

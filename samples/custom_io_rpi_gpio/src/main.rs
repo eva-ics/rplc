@@ -20,26 +20,36 @@ fn pinroute() {
 fn gpio_input_spawn() {
     let pin_in1 = Gpio::new().unwrap().get(GPIO_IN1).unwrap().into_input();
     let pin_in2 = Gpio::new().unwrap().get(GPIO_IN2).unwrap().into_input();
-    rplc::tasks::spawn_input_loop("gpio", Duration::from_millis(500), move || {
-        let in1 = pin_in1.is_high();
-        let in2 = pin_in2.is_high();
-        let mut ctx = plc_context_mut!();
-        ctx.in1 = in1;
-        ctx.in2 = in2;
-    });
+    rplc::tasks::spawn_input_loop(
+        "gpio",
+        Duration::from_millis(500),
+        Duration::default(),
+        move || {
+            let in1 = pin_in1.is_high();
+            let in2 = pin_in2.is_high();
+            let mut ctx = plc_context_mut!();
+            ctx.in1 = in1;
+            ctx.in2 = in2;
+        },
+    );
 }
 
 fn gpio_output_spawn() {
     let mut pin_out1 = Gpio::new().unwrap().get(GPIO_OUT1).unwrap().into_output();
     let mut pin_out2 = Gpio::new().unwrap().get(GPIO_OUT2).unwrap().into_output();
-    rplc::tasks::spawn_output_loop("gpio", Duration::from_millis(500), move || {
-        let (out1, out2) = {
-            let ctx = plc_context!();
-            (ctx.out1, ctx.out2)
-        };
-        pin_out1.write(out1.into());
-        pin_out2.write(out2.into());
-    });
+    rplc::tasks::spawn_output_loop(
+        "gpio",
+        Duration::from_millis(500),
+        Duration::default(),
+        move || {
+            let (out1, out2) = {
+                let ctx = plc_context!();
+                (ctx.out1, ctx.out2)
+            };
+            pin_out1.write(out1.into());
+            pin_out2.write(out2.into());
+        },
+    );
 }
 
 fn main() {

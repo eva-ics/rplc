@@ -22,16 +22,16 @@ impl !Send for Loop {}
 
 impl Loop {
     pub fn prepare0(interval: Duration) -> Self {
-        Self::prepare(interval, false)
+        Self::prepare(interval, Duration::default(), false)
     }
-    pub fn prepare_reported(interval: Duration) -> Self {
-        Self::prepare(interval, true)
+    pub fn prepare_reported(interval: Duration, shift: Duration) -> Self {
+        Self::prepare(interval, shift, true)
     }
     /// For input, program and output threads waits until the thread can pass
     /// # Panics
     ///
     /// will panic if interval in us > i64::MAX
-    pub fn prepare(interval: Duration, report: bool) -> Self {
+    pub fn prepare(interval: Duration, shift: Duration, report: bool) -> Self {
         let task_kind: Option<tasks::Kind> = if let Some(ch) = tasks::thread_name().chars().next() {
             match ch {
                 'I' => {
@@ -51,6 +51,7 @@ impl Loop {
         } else {
             None
         };
+        tasks::sleep(shift);
         let now = Instant::now();
         Loop {
             next_iter: now + interval,
@@ -125,4 +126,20 @@ where
 {
     let buf = String::deserialize(deserializer)?;
     parse_interval(&buf).map_err(serde::de::Error::custom)
+}
+
+#[allow(dead_code)]
+#[inline]
+pub(crate) fn deserialize_opt_interval_as_nanos<'de, D>(
+    deserializer: D,
+) -> Result<Option<u64>, D::Error>
+where
+    D: Deserializer<'de>,
+{
+    let buf: Option<String> = Option::deserialize(deserializer)?;
+    if let Some(b) = buf {
+        Ok(Some(parse_interval(&b).map_err(serde::de::Error::custom)?))
+    } else {
+        Ok(None)
+    }
 }
