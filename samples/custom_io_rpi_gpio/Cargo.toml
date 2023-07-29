@@ -10,4 +10,4 @@ rplc = { path = "../.." }
 rppal = "0.14.1"
 
 [build-dependencies]
-rplc = { path = "../.."}
+rplc = { path = "../.." }
