@@ -1984,9 +1984,9 @@ dependencies = [
 
 [[package]]
 name = "rplc_derive"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6972e6816b97bce284ec22994cf279bc26e2056568c835e2897d86e311502609"
+checksum = "6a154c7c7e711e6558ef6806f44ac9f9e65b1a5fc6b59bbbb9224661d28267a8"
 dependencies = [
  "darling",
  "quote",

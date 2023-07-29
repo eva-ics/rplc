@@ -21,6 +21,11 @@ struct InputConfig {
     map: Vec<RegMapInput>,
     #[serde(deserialize_with = "crate::interval::deserialize_interval_as_nanos")]
     sync: u64,
+    #[serde(
+        default,
+        deserialize_with = "crate::interval::deserialize_opt_interval_as_nanos"
+    )]
+    shift: Option<u64>,
 }
 
 #[derive(Deserialize)]
@@ -33,6 +38,11 @@ struct OutputConfig {
     map: Vec<RegMapOutput>,
     #[serde(deserialize_with = "crate::interval::deserialize_interval_as_nanos")]
     sync: u64,
+    #[serde(
+        default,
+        deserialize_with = "crate::interval::deserialize_opt_interval_as_nanos"
+    )]
+    shift: Option<u64>,
 }
 
 #[derive(Deserialize)]
@@ -108,11 +118,21 @@ impl Proto {
     }
 }
 
-fn push_launcher(kind: tasks::Kind, sync: u64, num: usize, id: &str, f: &mut codegen::Function) {
+fn push_launcher(
+    kind: tasks::Kind,
+    sync: u64,
+    shift: u64,
+    num: usize,
+    id: &str,
+    f: &mut codegen::Function,
+) {
     f.line("let comm_c = comm.clone();");
     let mut spawn_block = codegen::Block::new(&format!(
-        "::rplc::tasks::spawn_{}_loop(\"{}_{}\", ::std::time::Duration::from_nanos({}), move ||",
-        kind, id, num, sync,
+        r#"::rplc::tasks::spawn_{}_loop("{}_{}",
+        ::std::time::Duration::from_nanos({}),
+        ::std::time::Duration::from_nanos({}),
+        move ||"#,
+        kind, id, num, sync, shift
     ));
     spawn_block.line(&format!("{kind}_{id}_{num}(&comm_c);"));
     spawn_block.after(");");
@@ -340,6 +360,7 @@ pub(crate) fn generate_io(
         push_launcher(
             tasks::Kind::Input,
             input_config.sync,
+            input_config.shift.unwrap_or_default(),
             i + 1,
             &id,
             &mut launch_fn,
@@ -354,6 +375,7 @@ pub(crate) fn generate_io(
         push_launcher(
             tasks::Kind::Output,
             output_config.sync,
+            output_config.shift.unwrap_or_default(),
             i + 1,
             &id,
             &mut launch_fn,

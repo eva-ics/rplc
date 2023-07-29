@@ -16,6 +16,11 @@ struct InputConfig {
     nodes: Vec<NodeMap>,
     #[serde(deserialize_with = "crate::interval::deserialize_interval_as_nanos")]
     sync: u64,
+    #[serde(
+        default,
+        deserialize_with = "crate::interval::deserialize_opt_interval_as_nanos"
+    )]
+    shift: Option<u64>,
 }
 
 #[derive(Deserialize)]
@@ -25,6 +30,11 @@ struct OutputConfig {
     nodes: Vec<NodeMap>,
     #[serde(deserialize_with = "crate::interval::deserialize_interval_as_nanos")]
     sync: u64,
+    #[serde(
+        default,
+        deserialize_with = "crate::interval::deserialize_opt_interval_as_nanos"
+    )]
+    shift: Option<u64>,
     #[serde(
         default = "default_cache",
         deserialize_with = "crate::interval::deserialize_interval_as_nanos"
@@ -88,6 +98,7 @@ fn push_launcher(
     kind: tasks::Kind,
     map: &[NodeMap],
     sync: u64,
+    shift: u64,
     num: usize,
     id: &str,
     f: &mut codegen::Function,
@@ -105,8 +116,11 @@ fn push_launcher(
         );
     }
     let mut spawn_block = codegen::Block::new(&format!(
-        "::rplc::tasks::spawn_{}_loop(\"{}_{}\", ::std::time::Duration::from_nanos({}), move ||",
-        kind, id, num, sync,
+        r#"::rplc::tasks::spawn_{}_loop("{}_{}",
+        ::std::time::Duration::from_nanos({}),
+        ::std::time::Duration::from_nanos({}),
+        move ||"#,
+        kind, id, num, sync, shift
     ));
     if kind == tasks::Kind::Output {
         spawn_block.line(&format!("{kind}_{id}_{num}(&sess, &node_ids, &mut cache);"));
@@ -343,6 +357,7 @@ pub(crate) fn generate_io(
                 tasks::Kind::Input,
                 &input_config.nodes,
                 input_config.sync,
+                input_config.shift.unwrap_or_default(),
                 i + 1,
                 &id,
                 &mut launch_fn,
@@ -358,6 +373,7 @@ pub(crate) fn generate_io(
                 tasks::Kind::Output,
                 &output_config.nodes,
                 output_config.sync,
+                output_config.shift.unwrap_or_default(),
                 i + 1,
                 &id,
                 &mut launch_fn,

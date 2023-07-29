@@ -75,6 +75,7 @@ fn spawn_check_router() {
     rplc::tasks::spawn_input_loop(
         "router1",
         Duration::from_secs(2),
+        Duration::default(),
         move || match get_if_status(oid, &mut session) {
             Ok(v) => {
                 plc_context_mut!().router_if1 = v;
@@ -87,9 +88,14 @@ fn spawn_check_router() {
 }
 
 fn spawn_relays() {
-    rplc::tasks::spawn_output_loop("relays", Duration::from_secs(2), move || {
-        info!("relays set");
-    });
+    rplc::tasks::spawn_output_loop(
+        "relays",
+        Duration::from_secs(2),
+        Duration::default(),
+        move || {
+            info!("relays set");
+        },
+    );
 }
 
 fn shutdown() {

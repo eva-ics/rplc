@@ -14,6 +14,11 @@ struct OutputConfig {
     #[serde(deserialize_with = "crate::interval::deserialize_interval_as_nanos")]
     sync: u64,
     #[serde(
+        default,
+        deserialize_with = "crate::interval::deserialize_opt_interval_as_nanos"
+    )]
+    shift: Option<u64>,
+    #[serde(
         default = "default_cache",
         deserialize_with = "crate::interval::deserialize_interval_as_nanos"
     )]
@@ -153,8 +158,14 @@ pub(crate) fn generate_io(
         }
         launch_fn.line("];");
         let mut block = codegen::Block::new(&format!(
-            "::rplc::tasks::spawn_output_loop(\"{}_{}\", ::std::time::Duration::from_nanos({}), move ||",
-            id, i + 1, output_config.sync
+            r#"::rplc::tasks::spawn_output_loop("{}_{}",
+            ::std::time::Duration::from_nanos({}),
+            ::std::time::Duration::from_nanos({}),
+            move ||"#,
+            id,
+            i + 1,
+            output_config.sync,
+            output_config.shift.unwrap_or_default()
         ));
         block.line(format!("output_{}_{}(&oids, &mut cache);", id, i + 1));
         block.after(");");
