@@ -7,6 +7,8 @@ use syn::{parse_macro_input, AttributeArgs};
 struct PlcProgramArgs {
     #[darling(rename = "loop")]
     lp: String,
+    #[darling()]
+    shift: Option<String>,
 }
 
 /// # Panics
@@ -23,6 +25,7 @@ pub fn plc_program(args: TokenStream, input: TokenStream) -> TokenStream {
     };
     let item: syn::Item = syn::parse(input).expect("Invalid input");
     let int = parse_interval(&args.lp).unwrap();
+    let shift: Option<u64> = args.shift.map(|v| parse_interval(&v).unwrap());
     if let syn::Item::Fn(fn_item) = item {
         let block = fn_item.block;
         let name = fn_item.sig.ident;
@@ -47,7 +50,9 @@ pub fn plc_program(args: TokenStream, input: TokenStream) -> TokenStream {
             fn #spawner_name() {
                 ::rplc::tasks::spawn_program_loop(#prgname,
                     #name,
-                    ::std::time::Duration::from_nanos(#int));
+                    ::std::time::Duration::from_nanos(#int),
+                    ::std::time::Duration::from_nanos(#shift)
+                    );
             }
             fn #name() {
                 #block
