@@ -2,11 +2,14 @@ use crate::tasks;
 use eva_common::value::Value;
 use serde::Deserialize;
 use std::error::Error;
+use std::fmt::Write as _;
 use std::net::SocketAddr;
 pub use types::{Coils, Registers, SwapModbusEndianess};
 
 mod regs;
 mod types;
+
+const DEFAULT_FRAME_DELAY: f64 = 0.1;
 
 #[derive(Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -52,6 +55,10 @@ fn default_timeout() -> f64 {
     1.0
 }
 
+fn default_frame_delay() -> f64 {
+    DEFAULT_FRAME_DELAY
+}
+
 #[derive(Deserialize, Copy, Clone, Debug)]
 #[serde(rename_all = "lowercase")]
 enum Proto {
@@ -69,7 +76,12 @@ impl Proto {
             Proto::Rtu => "Rtu",
         }
     }
-    fn generate_datasync(self, path: &str, timeout: f64) -> Result<String, Box<dyn Error>> {
+    fn generate_datasync(
+        self,
+        path: &str,
+        timeout: f64,
+        frame_delay: f64,
+    ) -> Result<String, Box<dyn Error>> {
         let comm = match self {
             Proto::Tcp => {
                 path.parse::<SocketAddr>()?;
@@ -80,10 +92,15 @@ impl Proto {
             }
             Proto::Rtu => {
                 crate::comm::serial::check_path(path);
-                format!(
-                    r#"::rplc::comm::serial::SerialComm::create("{}", ::std::time::Duration::from_secs_f64({:.6})).unwrap()"#,
-                    path, timeout
-                )
+                let mut res = format!(r#"::rplc::comm::serial::SerialComm::create("{}", "#, path);
+                write!(res, "::std::time::Duration::from_secs_f64({:.6}),", timeout)?;
+                write!(
+                    res,
+                    "::std::time::Duration::from_secs_f64({:.6}),",
+                    frame_delay
+                )?;
+                write!(res, ").unwrap()")?;
+                res
             }
             _ => unimplemented!(),
         };
@@ -108,6 +125,8 @@ struct Config {
     proto: Proto,
     #[serde(default = "default_timeout")]
     timeout: f64,
+    #[serde(default = "default_frame_delay")]
+    frame_delay: f64,
 }
 
 fn push_input_worker(
@@ -308,7 +327,7 @@ pub(crate) fn generate_io(
         "let comm_obj = {};",
         config
             .proto
-            .generate_datasync(&config.path, config.timeout)?
+            .generate_datasync(&config.path, config.timeout, config.frame_delay)?
     ));
     if !inputs.is_empty() || !outputs.is_empty() {
         launch_fn.line("let comm: ::rplc::comm::Communicator = ::std::sync::Arc::new(comm_obj);");

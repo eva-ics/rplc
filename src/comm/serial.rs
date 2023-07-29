@@ -5,7 +5,7 @@ use serial::SystemPort;
 use std::error::Error;
 use std::io::{Read, Write};
 use std::sync::Arc;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 
 fn parse_path(
     path: &str,
@@ -93,9 +93,16 @@ pub fn open(listen: &str, timeout: Duration) -> Result<SystemPort, serial::Error
 #[allow(clippy::module_name_repetitions)]
 pub struct SerialComm {
     path: String,
-    port: Mutex<Option<SystemPort>>,
+    port: Mutex<SPort>,
     timeout: Duration,
+    frame_delay: Duration,
     busy: Mutex<()>,
+}
+
+#[derive(Default)]
+struct SPort {
+    system_port: Option<SystemPort>,
+    last_frame: Option<Instant>,
 }
 
 #[allow(clippy::module_name_repetitions)]
@@ -106,21 +113,42 @@ impl Comm for SerialComm {
         self.busy.lock()
     }
     fn reconnect(&self) {
-        self.port.lock().take();
+        let mut port = self.port.lock();
+        port.system_port.take();
+        port.last_frame.take();
     }
     fn write(&self, buf: &[u8]) -> Result<(), std::io::Error> {
         let mut port = self.get_port()?;
-        port.as_mut().unwrap().write_all(buf).map_err(|e| {
-            self.reconnect();
-            e
-        })
+        if let Some(last_frame) = port.last_frame {
+            let el = last_frame.elapsed();
+            if el < self.frame_delay {
+                std::thread::sleep(self.frame_delay - el);
+            }
+        }
+        let result = port
+            .system_port
+            .as_mut()
+            .unwrap()
+            .write_all(buf)
+            .map_err(|e| {
+                self.reconnect();
+                e
+            });
+        if result.is_ok() {
+            port.last_frame.replace(Instant::now());
+        }
+        result
     }
     fn read_exact(&self, buf: &mut [u8]) -> Result<(), std::io::Error> {
         let mut port = self.get_port()?;
-        port.as_mut().unwrap().read_exact(buf).map_err(|e| {
-            self.reconnect();
-            e
-        })
+        port.system_port
+            .as_mut()
+            .unwrap()
+            .read_exact(buf)
+            .map_err(|e| {
+                self.reconnect();
+                e
+            })
     }
 }
 
@@ -128,20 +156,26 @@ impl SerialComm {
     /// # Panics
     ///
     /// Will panic on misconfigured path string
-    pub fn create(path: &str, timeout: Duration) -> Result<Self, Box<dyn Error>> {
+    pub fn create(
+        path: &str,
+        timeout: Duration,
+        frame_delay: Duration,
+    ) -> Result<Self, Box<dyn Error>> {
         check_path(path);
         Ok(Self {
             path: path.to_owned(),
             port: <_>::default(),
-            busy: <_>::default(),
             timeout,
+            frame_delay,
+            busy: <_>::default(),
         })
     }
-    fn get_port(&self) -> Result<MutexGuard<Option<SystemPort>>, std::io::Error> {
+    fn get_port(&self) -> Result<MutexGuard<SPort>, std::io::Error> {
         let mut lock = self.port.lock();
-        if lock.as_mut().is_none() {
+        if lock.system_port.as_mut().is_none() {
             let port = open(&self.path, self.timeout)?;
-            lock.replace(port);
+            lock.system_port.replace(port);
+            lock.last_frame.take();
         }
         Ok(lock)
     }
