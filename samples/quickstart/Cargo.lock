@@ -1326,9 +1326,9 @@ dependencies = [
 
 [[package]]
 name = "rplc_derive"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6972e6816b97bce284ec22994cf279bc26e2056568c835e2897d86e311502609"
+checksum = "6a154c7c7e711e6558ef6806f44ac9f9e65b1a5fc6b59bbbb9224661d28267a8"
 dependencies = [
  "darling",
  "quote",
@@ -1871,9 +1871,9 @@ checksum = "c0edd1e5b14653f783770bce4a4dabb4a5108a5370a5f5d8cfe8710c361f6c8b"
 
 [[package]]
 name = "unsafe-libyaml"
-version = "0.2.8"
+version = "0.2.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1865806a559042e51ab5414598446a5871b561d21b6764f2eabb0dd481d880a6"
+checksum = "ab4c90930b95a82d00dc9e9ac071b4991924390d46cbd0dfe566148667605e4b"
 
 [[package]]
 name = "version_check"
