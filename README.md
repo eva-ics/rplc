@@ -4,6 +4,8 @@
   <a href="https://docs.rs/rplc"><img alt="docs.rs page" src="https://docs.rs/rplc/badge.svg"></img></a>
 </h2>
 
+THIS IS A LEGACY REPOSITORY. CONSIDER SWITCHING TO [RoboPLC](https://github.com/eva-ics/roboplc) INSTEAD.
+
 rPLC project allows to write PLC programs for Linux systems in Rust using
 classical PLC programming approach.
 
